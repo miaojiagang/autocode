@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- config :生成器配置信息
+ targetProject:生成文件路径 targetPackage：项目包-->
+<config targetProject="E:\work\travel\trunk\base\fast1.0.0\fast1.0.0\tools\fast-autocode\autocode"
+		targetPackage="com.zjhcsoft.travel.api">
+
+	<javaDoc author="liuex" createDate="20171228"/>
+
+	<!-- jdbcConnection 数据库连接信息
+		driverClass：数据库驱动程序
+		connectionURL：数据库连接串
+		userId:数据库用户名
+		password：用户密码
+		infSql:读取表信息的sql,mysql:"SELECT c.COLUMN_COMMENT ,c.COLUMN_NAME , c.COLUMN_TYPE , c.COLUMN_KEY ,c.DATA_TYPE
+		, c.IS_NULLABLE ,c.COLUMN_DEFAULT  FROM information_schema.COLUMNS c WHERE c.TABLE_NAME = '${table_name}' AND c.TABLE_SCHEMA = '${TABLE_SCHEMA}'"
+	 -->
+	<!-- mysql
+
+					connectionURL="jdbc:mysql://localhost:53305/kh2_grid?useUnicode=true&amp;characterset=utf-8"
+					connectionURL="jdbc:mysql://localhost:3306/l_s_travel?useUnicode=true&amp;characterset=utf-8"
+					-->
+	<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+					connectionURL="jdbc:mysql://localhost:25506/kh2_grid?useUnicode=true&amp;characterset=utf-8"
+					userId="root"
+					password="doproot@#Q4"
+					infSql = "SELECT   c.COLUMN_COMMENT ,c.COLUMN_NAME , c.COLUMN_TYPE , c.COLUMN_KEY
+					,c.DATA_TYPE , c.IS_NULLABLE ,c.COLUMN_DEFAULT   FROM information_schema.COLUMNS c
+					WHERE c.TABLE_NAME = '${TABLE_NAME}' AND c.TABLE_SCHEMA = '${TABLE_SCHEMA}'"
+			>
+	</jdbcConnection>
+	<!-- oracle -->
+	<!--
+	<jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver"
+		connectionURL="jdbc:oracle:thin:@10.80.11.250:1521:jpsc"
+		userId="jpsc"
+		password="jpsc"
+		infSql = "select f.comments as COLUMN_COMMENT,a.column_name as COLUMN_NAME,a.data_type as COLUMN_TYPE,e.key as COLUMN_KEY
+		,a.data_type as DATA_TYPE, a.nullable as IS_NULLABLE,a.data_default as COLUMN_DEFAULT from user_tab_columns a
+		, user_col_comments f,(select b.table_name, b.index_name,b.uniqueness, c.column_name,decode(d.constraint_name,NULL,'N','Y')
+		 key from user_indexes b, user_ind_columns c,( select constraint_name from user_constraints where constraint_type='P' )
+		  d where b.index_name=c.index_name and b.index_name=d.constraint_name(+) ) e
+		   where a.table_name='${TABLE_NAME}'
+		   and a.table_name=e.table_name(+) and a.column_name=e.column_name(+)
+		    and a.table_name=f.table_name and a.column_name=f.column_name order by a.column_id"
+		>
+	</jdbcConnection>
+	 -->
+	<!--generators 要生成的代码类型 -->
+	<generators>
+		<!--generator，要生成的代码类型
+			targetProject:代码存放位置，
+		    targetPackage:代码包路径，
+		    template：使用渲染模板，
+		    type:代码类型，xml:sql Map文件，domain：实体对象，dao：数据访问对象，service：服务对象，action，page:vm模板
+		    fileType:生成文件类型
+		     -->
+		<!-- domain 文件生成 -->
+		<generator type="domain" template="/template/domain.vm"/>
+
+		<!-- sql map 文件生成 -->
+		<generator type="xml" template="/template/mapxml.vm"/>
+
+		<!-- dao 文件生成 -->
+		<generator type="dao"  template="/template/dao.vm"/>
+
+		<!-- daoImpl 文件生成 -->
+		<generator type="daoImpl" template="/template/daoImpl.vm"/>
+
+		<!-- service 文件生成 -->
+		<generator type="service"  template="/template/service.vm"/>
+
+		<!-- serviceImpl 文件生成 -->
+		<generator type="serviceImpl" template="/template/serviceImpl.vm"/>
+
+		<!-- action 文件生成 -->
+		<generator type="action" template="/template/action.vm"/>
+
+		<!--&lt;!&ndash; 页面  文件生成 &ndash;&gt; -->
+		<!--	easyui:easyui框架 (生成add、edit、index页面)
+			boodstrap:boodstrap框架，添加页面不弹框 (生成add、detail、index页面)
+			boodstrap2:boodstrap框架，添加页面弹框 (生成add、detail、index页面)
+			1.0.0 为，将数据持久层在sevice层中
+		-->
+		<generator type="page" name="index" fileType = "vm" template="/template/boodstrap/pageIndex.vm"/>
+		<generator type="page" name="add" fileType = "vm" template="/template/boodstrap/pageAdd.vm"/>
+		<generator type="page" name="detail" fileType = "vm" template="/template/boodstrap/pageDetail.vm"/>
+	</generators>
+
+	<!--tables 要生成的表信息 -->
+	<tables>
+		<!--生成代码的表信息
+			schema：数据库schema
+			tableNmae：数据库表名
+			className:对应java实体名，如果按照数据库设计规范设计可不用配置，按照tableName安装驼峰规则转换得到
+			name:对应的实体名称，用于生成页面时展示使用
+		 -->
+		 <table schema="travel_interactive" moduleName="gate" tableName="j_zj_ic_checkdetail" name="游客进闸机信息表"/>
+<!-- 
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="cultural_basic_info" name="人文景观基本信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="cultural_info_history" name="人文设施信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="cultural_pic_history" name="人文设施图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="gathering_audit" name="数据采集审核表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="hotel_basic_info" name="酒店基本信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="hotel_info_history" name="酒店信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="hotel_pic_history" name="酒店图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="hotel_pic_info" name="酒店图片信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="house_basic_info" name="农家乐基本信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="house_comment" name="农家乐评价信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="house_comm_pic_info" name="农家乐评价图片信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="house_info_history" name="农家乐信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="house_pic_history" name="农家乐图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="house_pic_info" name="农家乐图片信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="parking_basic_info" name="停车场基本信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="parking_comment" name="停车场评价信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="parking_comm_pic_info" name="停车场评价图片信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="parking_info_history" name="停车场信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="parking_pic_history" name="停车场图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="rel_restaurant_specialty_history" name="餐厅特色菜关联历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="restaurant_basic_info" name="餐馆基本信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="restaurant_group_history" name="餐厅-团购历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="restaurant_info_history" name="餐厅信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="restaurant_pic_history" name="餐厅图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="restaurant_pic_info" name="餐馆图片信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_basic_info" name="景区基本信息"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_comment" name="景区评价信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_comm_pic_info" name="景区评价图片信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_gate_history" name="景区大门历史表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_gate_info" name="景区大门信息"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_info_history" name="景区信息填报历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_micro_video" name="景区-微视频"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_micro_video_history" name="景区微视频历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_pic" name="景区图片"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_pic_history" name="景区图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_point_history" name="景点基本信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_point_pic_history" name="景点图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="scenic_spot_basic_info" name="景区-景点信息"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="server_info_history" name="公共设施信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="server_pic_history" name="公共设施图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="shopping_basic_info" name="购物基本信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="shopping_comment" name="购物评价信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="shopping_comm_pic_info" name="购物评价图片信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="shopping_info_history" name="购物场所信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="shopping_pic_history" name="购物场所图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="shopping_pic_info" name="购物图片信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="tainment_basic_info" name="娱乐基本信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="tainment_info_history" name="娱乐场所信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="tainment_pic_history" name="娱乐场所图片历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="tainment_pic_info" name="娱乐图片信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="toilet_basic_info" name="厕所基本信息表"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="toilet_info_history" name="厕所信息历史"/>
+		<table schema="khtourism_web" moduleName="baseinfo" tableName="toilet_pic_history" name="厕所图片历史"/> -->
+		<!--<table schema="khtourism_web" moduleName="travelIndex" tableName="scenic_travel_index" name="宜游指数"/>-->
+		<!--<table schema="khtourism_web" moduleName="comment" tableName="scenic_comment" name="景区评价信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="comment" tableName="restaurant_comment" name="餐馆评价信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="comment" tableName="hotel_comment" name="酒店评价信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="comment" tableName="house_comment" name="农家乐评价信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="comment" tableName="shopping_comment" name="购物评价信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="comment" tableName="tainment_comment" name="娱乐评价信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="commentPic" tableName="toilet_comment" name="厕所评价信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="commentPic" tableName="toilet_comm_pic_info" name="厕所评价图片"/>-->
+		<!--<table schema="khtourism_web" moduleName="commentPic" tableName="parking_comment" name="停车场评价信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="comment" tableName="tainment_comm_pic_info" name="娱乐场所评论图片信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="user" tableName="user_basic_info" name="用户基本信息表"/>-->
+		<!--<table schema="khtourism_web" moduleName="query" tableName="query_deal" name="问题处理记录"/>-->
+		<!--<table schema="khtourism_web" moduleName="query" tableName="query_info" name="咨询详情表"/>-->
+		<!--<table schema="khtourism_web" moduleName="query" tableName="query_attachment" name="咨询问题附件"/>-->
+		<!--<table schema="khtourism_web" moduleName="query" tableName="query_base" name="咨询问题知识库"/>-->
+		<!--<table schema="khtourism_web" moduleName="query" tableName="query_base_attachment" name="咨询问题知识库附件"/>-->
+		<!--<table schema="khtourism_web" moduleName="complain" tableName="complain_deal" name="投诉处理记录"/>-->
+		<!--<table schema="khtourism_web" moduleName="complain" tableName="complain_info" name="投诉基本信息"/>-->
+		<!--<table schema="khtourism_web" moduleName="complain" tableName="complain_attachment" name="投诉附件"/>-->
+	</tables>
+</config>

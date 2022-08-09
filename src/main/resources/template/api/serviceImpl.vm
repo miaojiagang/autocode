@@ -1,0 +1,32 @@
+#set($searchColCount = 1)
+##包定义
+package $!{targetPackage};
+
+import com.zjhcsoft.bi.fast.orm.service.support.paging.PageInfo;
+import com.zjhcsoft.travel.common.service.CoerServiceImpl;
+import org.springframework.stereotype.Service;
+import java.util.Map;
+
+##导入dao、实体
+import $!{generatorContext.daoPackage}.$!{className}DaoImpl;
+import $!{generatorContext.domain};
+
+/**
+ * @description:$!{table.name}ServiceIml
+ * @author $!{javaDoc.author}
+ * @date: $!{javaDoc.createDate}
+ * @history:
+ */
+@Service
+public class $!{className}ServiceImpl extends CoerServiceImpl<$!{className},$!{className}DaoImpl>{
+
+
+    /**
+    * 根据条件查询分页，返回Map
+    * @param map
+    * @return
+    */
+    public PageInfo<Map> queryPagedMap(Map map) {
+        return dao.queryPagedMap(map);
+    }
+}

@@ -1,0 +1,159 @@
+#set($v1 = "$!{")
+#set($v2 = "}")
+#include('version.vm')
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>$!{table.name}新增</title>
+    <link rel="stylesheet" type="text/css" href="${base}/css/temp/model.css?_=${version}">
+    <link rel="stylesheet" type="text/css" href="${base}/css/temp/pcreset.css?_=${version}">
+    <link href="${base}/css/ml.css?_=${version}" rel="stylesheet">
+    <link href="${base}/bootstrap/css/bootstrap.min.css?_=${version}" rel="stylesheet">
+    <link href="${base}/bootstrap/css/bootstrap-table.min.css?_=${version}" rel="stylesheet">
+    <link href="${base}/bootstrap/css/base.css?_=${version}" rel="stylesheet">
+    <link href="${base}/bootstrap/css/table.css?_=${version}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="${base}/bootstrap/css/sweetalert2.min.css?_=${version}">
+    <link href="${base}/uploadify/uploadify.css?_=${version}" rel="stylesheet">
+    <link href="${base}/plugin/viewJs/viewer.min.css?_=${version}" rel="stylesheet">
+    <link href="${base}/bootstrap/css/sweetalert2.min.css?_=${version}" rel="stylesheet">
+    <link href="${base}/new/css/base.css?_=${version}" rel="stylesheet"/>
+
+</head>
+<body>
+<form id="form1">
+    <input type="hidden" name="id" id="id" value="" >
+    <div class="event-model" style="width: 100%">
+        <div class="wrap" style="width: 100%">
+            <div class="item-tit">
+                <p class="name">$!{table.name}添加</p>
+                <div class="kh-btn-group">
+                    <button class="btn btn-sm btn-primary" type="button" id="addHtml" onclick="saveModel();">
+                        保存 <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                    </button>
+                    <button class="btn btn-sm btn-default" type="button" onclick="returnList();" >
+                        返回 <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+        <div class="modal-body">
+#foreach ($column in $table.columns)
+    		<div class="row">
+                <div class="form-group form-group-sm col-md-6">
+                    <strong>*</strong><label class="col-md-4 control-label" for="">$!{column.columnCommnet}:</label>
+                    <div class="col-md-6">
+                        #if($column.inputType=='text')
+##						<!--输入框-->
+                        <input class="form-control" type="text" name="$!{column.fieldName}" id="$!{column.fieldName}" value="" maxlength="$column.columnLength">
+                        #elseif($column.inputType=='select')
+##                            <!--选择框-->
+                            <select id="$!{column.fieldName}" name="$!{column.fieldName}" class="form-control select-wrap col-md-12" style="line-height:20px;">
+                                #dicSelect("$!{column.fieldName}")
+                            </select>
+                            <span class="muststar"></span>
+##                        <!--文本框-->
+                        #elseif($column.inputType=='textarea')
+                            <textarea class="form-control big-txt" type="text" id="$!{column.fieldName}" name="$!{column.fieldName}" ></textarea>
+                        #else
+                            <input class="form-control" type="text" name="$!{column.fieldName}" id="$!{column.fieldName}" value="" maxlength="$column.columnLength">
+                        #end
+					</div>
+                </div>
+            </div>
+#end
+        </div>
+    </div>
+    </div>
+</form>
+</body>
+</html>
+
+<script src="${base}/bootstrap/js/jquery.min.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/plugins/laydate/laydate.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/bootstrap.min.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/bootstrap-table.min.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/bootstrap-table-zh-CN.min.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/plugins/tableExport.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/plugins/jquery.base64.js?_=${version}"></script>
+<script src="${base}/js/ajax/core2.4.1.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/sweetalert2.min.js?r=1"></script>
+<script src="${base}/bootstrap/js/sweetalert.min.js?r=1"></script>
+<script src="${base}/js/newCommon.js?_=${version}"></script>
+
+<script>
+
+    $(function () {
+        var height = $("body").height() + 50;
+        $("#iframe", window.parent.parent.document).height(height);
+        $("#detailIframe", window.parent.document).height(height);
+		initModel();
+    });
+    function initModel(){
+        id= '${id}'
+        if(id.length>0){
+            return;
+        }
+        $.ajax({
+            type: "POST",
+            url:'${base}/$!{generatorContext.module}/$!{table.urlName}/getInfo?id='+id,
+            success:function (result) {
+				var model = result;
+                $("#id").val(model.id);
+		#foreach ($column in $table.columns)
+			$("#$!{column.fieldName}").val(model.$!{column.fieldName});
+		#end
+            }
+        });
+	}
+
+
+    var isSubmit = 0
+    //关闭按钮点击弹窗
+    function saveModel() {
+        if (isSubmit == 1) {
+            returnList();
+        }
+        isSubmit = 1
+        if(!ckeckInput){
+            isSubmit = 0
+            return;
+        }
+        $.ajax({
+            type: "POST",
+            url:'${base}/$!{generatorContext.module}/$!{table.urlName}/save',
+            data: $("#form1").serialize(),
+            success:function (result) {
+                if(result.status!=0){
+                    window.parent.swal("保存失败!", result.message, "error");
+                }else {
+                    window.parent.swal("保存成功!", "已保存", "success").then(function () {
+                        returnList();
+                    });
+                }
+                isSubmit = 0
+            },error:function (result) {
+                window.parent.swal("保存失败!", "未保存", "error");
+                isSubmit = 0
+            }
+        });
+    }
+
+    function ckeckInput(){
+#foreach ($column in $table.columns)
+        if($("#$!{column.fieldName}").val()<=0) {
+            window.parent.swal("保存失败!", "请输入$!{column.columnCommnet}", "error");
+            return false;
+        }
+#end
+        return true;
+    }
+
+
+    ##返回
+    function returnList() {
+        $("#detailIframe", window.parent.document).hide();
+        $("#conMain", window.parent.document).show();
+        window.parent.refreshTable();
+    }
+</script>

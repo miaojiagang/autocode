@@ -1,0 +1,56 @@
+##包定义
+package $!{targetPackage};
+
+import com.zjhcsoft.bi.fast.core.constant.WebResultStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import javax.servlet.http.HttpServletRequest;
+import com.zjhcsoft.bi.fast.orm.service.support.paging.PageInfo;
+import com.zjhcsoft.travel.common.action.FastAction;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+##import domain、service
+import $!{generatorContext.domain};
+import $!{generatorContext.service}Impl;
+
+/**
+ * @description:$!{table.name} action
+ * @author $!{javaDoc.author}
+ * @date: $!{javaDoc.createDate}
+ * @history:
+ */
+ ## 类名
+@Controller
+public class $!{className}Action extends FastAction<$!{className},$!{className}ServiceImpl> {
+
+
+        /**
+        /**
+        * 分页查询列表.
+        * @param request
+        */
+        @RequestMapping(value = "/$!{table.urlName}")
+        public     @ResponseBody
+        Map<String,Object> $!{table.urlName}(HttpServletRequest request) {
+            Map<String,Object> res=new HashMap<String, Object>();
+            try {
+                    Map<String,String> param = bindMap(request);
+                    //校验传入参数
+
+                    //查询
+                    PageInfo<Map> page = entityService.queryPagedMap(param);
+                    res.put("status", WebResultStatus.STATUS_SUCCESS.getIndex());
+                    res.put("total",page.getTotal());
+                    res.put("retinfo",page.getRows());
+
+                } catch (Exception e) {
+                    res.put("status",WebResultStatus.STATUS_SYS_ERROR.getIndex());
+                    e.printStackTrace();
+                }
+                return res;
+            }
+
+
+}

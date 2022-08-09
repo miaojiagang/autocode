@@ -1,0 +1,21 @@
+##包定义
+package $!{targetPackage};
+import lombok.extern.slf4j.Slf4j;
+import com.zghzbckj.base.web.BaseController;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * @description:$!{table.name} Controller
+ * @author: $!{javaDoc.author}
+ * @date: $!{javaDoc.createDate}
+ * @history:
+ */
+
+@Slf4j
+@RestController
+@RequestMapping(value = "$!{fieldName}Api")
+public class $!{className}Controller extends BaseController{
+	
+
+}

@@ -1,0 +1,224 @@
+#include('version.vm')
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>$!{table.name}列表界面</title>
+    #parse("commons/commonCss.vm")
+</head>
+<body>
+<div class="container-fluid" id="collectTitle">
+    <ol class="ml-navigation breadcrumb kh-breadcrumb col-md-8 pd-left-0" id="collectNavigation"></ol>
+    <div class="col-md=4">
+        <div class="kh-btn-group ml-table-tools">
+            <button title="新增" class="btn btn-sm btn-success js-add-iframe"
+                    type="button" onclick="addItem()">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增
+            </button>
+            <button class="btn btn-sm btn-info-border btn-default ml-refresh" type="button"
+                    onclick="refreshIndex()"></button>
+        </div>
+        <div class="kh-btn-group ml-add-tools" style="display: none">
+            <button title="保存" class="btn btn-sm btn-success js-add-iframe"
+                    onclick="save()" type="button">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 保存
+            </button>
+            <button type="button" class="btn btn-back btn-xs btn-default"
+                    onclick="detailReturn()"><i class="iconfont icon-ic-back"></i> 返回
+            </button>
+        </div>
+    </div>
+</div>
+<div class="container-fluid" id="conMain">
+    <div class="row">
+        <div class="panel panel-default kh-panel pd-left-15 kh-panel-no-box-shadow">
+            <div class="kh-work-layout">
+                <div class="kh-work-header">
+                    <div class="kh-work-header-wrap pd-lr-20">
+                        <form class="form-inline">
+                            <div class="form-group" style="width: 23%;">
+                                <label>等级</label>
+                                <select id="queryLevel" style="width: 64%;" class="form-control">
+                                    <option value="">请选择</option>
+                                    #dicSelect("AGENCY_LEVEL")
+                                </select>
+                            </div>
+                            <div class="form-group" style="width: 23%;">
+                                <label for="queryName">名称</label>
+                                <input style="width: 60%;" type="text" class="form-control" id="queryName"
+                                       placeholder="名称">
+                            </div>
+                            <div class="clearfix  btn-search">
+                                <button type="button"
+                                        class="btn btn-default btn-md btn-success pull-right query-search-reset">
+                                    重置
+                                </button>
+                                <button type="button" class="btn btn-default btn-md btn-info pull-right query-search">
+                                    查询
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="is-show-btn">
+                        <i class="iconfont icon-search-ic-up" style="font-size: 10px;"></i>
+                    </div>
+                </div>
+                <div class="kh-work-footer">
+                    <table id="reportTable" data-classes="table table-no-bordered"
+                           class="kh-table m-t-10 table table-no-bordered" data-pagination="true">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<iframe id="detailIframe" marginWidth=0 marginHeight=0 frameBorder=0 width="100%" height="100%"
+        scrolling=no src="" style="display: none;"></iframe>
+</body>
+</html>
+#parse("commons/commonJs.vm")
+<script type="text/javascript">
+
+    var tabQueryStatus = 1;
+    $(function () {
+        //收起查询重置 面板
+        myWorkLayout();
+        var table = new queryTable();
+        table.Init();
+        //查询按钮点击监控
+        $(".query-search").click(function () {
+            $('#reportTable').bootstrapTable("refreshOptions", {pageNumber: 1});
+        });
+        //重置按钮监控
+        $(".query-search-reset").click(function () {
+            $("#queryType").val("");
+            $("#queryLevel").val("");
+            $("#queryName").val("");
+            $("#showData").val("");
+        });
+        //重置页面高度
+        $('#reportTable').on("load-success.bs.table", function () {
+        });
+
+        //设置导航信息
+        setNavigation(window);
+    });
+
+    //$!{table.name}列表
+    var queryTable = function () {
+        var table = new Object();
+        table.Init = function () {
+            $('#reportTable').bootstrapTable({
+                url: '${base}/$!{generatorContext.module}/$!{table.urlName}/queryPaged',
+                method: 'post',
+                contentType: "application/x-www-form-urlencoded",
+                cache: false,
+                striped: false,
+                pagination: true,
+                pageNumber: 1,
+                pageSize: 10,
+                pageList: [10, 20, 30, 40],
+                showColumns: false,
+                showRefresh: false,
+                showExport: false,
+                queryParams: table.queryParams,
+                responseHandler: table.responseHandler,
+                search: false,
+                clickToSelect: false,
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                columns: [
+                    {field: "id", title: "ID", class: 'w-50', align: "center", valign: "middle"}
+                    #foreach ($column in $table.columns)
+                        ,{field:'$!{column.fieldName}',title:'$!{column.columnCommnet}',align: "center", valign: "middle"}
+                    #end
+                    ,{
+                        field: 'id',
+                        title: '操作',
+                        minWidth: '70px',
+                        align: 'center',
+                        class: 'edit-td handle w-150',
+                        formatter: function (value, row, index) {
+                            var e = '';
+                            e += '<button type="button" class="btn btn-primary btn-xs" onclick="detail(' + value + ')">详情</button> ';
+                            e += '<button type="button" class="btn btn-primary btn-xs" onclick="openEditModel(' + value + ')">编辑</button> ';
+                            e += '<button type="button" class="btn btn-primary btn-xs" onclick="deleteModel(' + value + ')">删除</button> ';
+                            return e;
+                        }
+                    }
+                ],
+            });
+        };
+        table.queryParams = function (params) {
+            var page = parseInt((params.offset + params.limit - 1) / params.limit) + 1;
+            var queryType = $("#queryType").val();//旅行社类型
+            var queryLevel = $("#queryLevel").val();//旅行社等级
+            var queryName = $("#queryName").val();//旅行社名称
+            var temp = {
+                rows: params.limit,//页面大小
+                page: page,  //页码
+                agencyType: queryType,
+                agencyLevel: queryLevel,
+                name: queryName,
+            };
+            return temp;
+        };
+        table.responseHandler = function (res) {
+            return res.retinfo;
+        }
+        return table;
+    };
+
+    //刷新按钮
+    function refreshIndex() {
+        $('#reportTable').bootstrapTable("refresh", {});
+    }
+
+
+    /**新增**/
+    function addItem() {
+        $("#conMain").hide();
+        $(".ml-table-tools").hide();
+        $(".ml-add-tools").show();
+        $("#detailIframe").attr("src", "${base}/$!{generatorContext.module}/$!{table.urlName}/add");
+        $("#detailIframe").show();
+        addNavigationText(window, ["新增"]);
+    }
+
+
+    /**编辑**/
+    function openEditModel(uniqueId, type) {
+        $("#conMain").hide();
+        $(".ml-table-tools").hide();
+        $(".ml-add-tools").show();
+        $("#detailIframe").attr("src", "${base}/$!{generatorContext.module}/$!{table.urlName}/add?uniqueId=" + uniqueId);
+        $("#detailIframe").show();
+        addNavigationText(window, ["编辑"]);
+    }
+
+    /**保存**/
+    function save() {
+        var iframe = document.getElementById("detailIframe");
+        //调用子界面的保存方法
+        iframe.contentWindow.save();
+    }
+
+    /**详情子界面的返回方法**/
+    function detailReturn() {
+        $("#collectTitle").show();
+        $("#conMain").show();
+        $("#detailIframe").hide();
+        $('#reportTable').bootstrapTable('refresh', {silent: true});
+        $(".ml-add-tools").hide();
+        $(".ml-table-tools").show();
+        $("#detailIframe").attr("src", "");
+        delNavigationLast(window);
+    }
+
+    //修改子iframe高度
+    function changeIframeHeight(height) {
+        if (!isNaN(height)) {
+            $("#detailIframe").attr("height", height);
+        }
+    }
+</script>

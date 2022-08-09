@@ -1,0 +1,25 @@
+#set($searchColCount = 1)
+##包定义
+package $!{targetPackage};
+
+import com.zjhcsoft.bi.fast.orm.domain.BaseEntity;
+import com.zjhcsoft.travel.common.dao.CoreDao;
+##导入dao、实体
+import $!{generatorContext.domain};
+
+/**
+ * @description:$!{table.name}dao
+ * @author $!{javaDoc.author}
+ * @date: $!{javaDoc.createDate}
+ * @history:
+ */
+
+/**
+ * @description:$!{table.name}dao
+ *
+ * @author $!{javaDoc.author}
+ * @date: $!{javaDoc.createDate}
+ */
+public interface $!{className}Dao extends CoreDao<$!{className}> {
+
+}

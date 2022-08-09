@@ -1,0 +1,23 @@
+#set($searchColCount = 1)
+##包定义
+package $!{targetPackage};
+
+import com.zghzbckj.base.dao.CrudDao;
+import com.zghzbckj.base.dao.MyBatisDao;
+import java.util.Map;
+##导入dao、实体
+import $!{generatorContext.domain};
+
+/**
+ * @description:$!{table.name}dao
+ * @author $!{javaDoc.author}
+ * @date: $!{javaDoc.createDate}
+ * @history:
+ */
+@MyBatisDao
+public interface $!{className}Dao extends CrudDao<$!{className}> {
+
+
+
+      $!{className} findOneByMap( Map<String,Object> param );
+}

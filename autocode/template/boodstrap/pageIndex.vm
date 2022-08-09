@@ -1,0 +1,288 @@
+#include('version.vm')
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>咨询</title>
+    <link href="${base}/new/public/bootstrap-3.3.7-dist/css/bootstrap.min.css?_=${version}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="${base}/new/public/jquery-easyui-1.5.3/themes/default/easyui.css?_=${version}">
+    <link rel="stylesheet" type="text/css" href="${base}/new/public/jquery-easyui-1.5.3/themes/icon.css?_=${version}">
+    <link rel="stylesheet" type="text/css" href="${base}/new/public/bootstrap-table/css/bootstrap-table.css?_=${version}"/>
+    <link href="${base}/new/css/base.css?_=${version}" rel="stylesheet"/>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+	<script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js?_=${version}"></script>
+	<script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js?_=${version}"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="container-fluid" id="conMain">
+    <div class="row">
+        <div class="panel panel-default kh-panel">
+            <div class="panel-heading">
+                <h3 class="panel-title"></h3>
+                <div class="kh-btn-group">
+                    <button class="btn btn-sm btn-primary" type="button" onclick="openAddModel()">
+                        新增 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                    </button>
+                    <button class="btn btn-sm btn-success" type="button" onclick="refreshTable()">
+					<span class="glyphicon glyphicon-refresh" aria-hidden="true">
+                    </button>
+                </div>
+            </div>
+            <div class="kh-work-layout">
+                <div class="kh-work-header">
+                    <div class="kh-work-header-wrap">
+                        <div class="row">
+                            <label class="col-xs-1 col-md-1">咨询内容</label>
+                            <div class="col-xs-2 col-md-2">
+                                <input id="keywordSearch" type="text" class="form-control" placeholder="请输入咨询内容">
+                            </div>
+                            <label class="col-xs-1">咨询满意度</label>
+                            <div class="col-xs-2">
+                                <select class="form-control" id="selEvaluateResult">
+                                    <option value="">全部</option>
+									#dicSelect("EVALUATE_RESULT")
+                                </select>
+                            </div>
+                            <label class="col-xs-1">推荐选择</label>
+                            <div class="col-xs-2">
+                                <select class="form-control" id="selInQueryBase">
+                                    <option value="">全部</option>
+									#dicSelect("IN_QUERY_BASE")
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="col-xs-1">开始时间</label>
+                            <div class="col-xs-2">
+                                <input class="form-control date-icon" id="managementStart">
+                            </div>
+                            <label class="col-xs-1">截止时间</label>
+                            <div class="col-xs-2">
+                                <input class="form-control date-icon" id="managementEnd">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="work-btn-group">
+                                <button class="btn btn-sm btn-warning query-search-reset">重置 <span
+                                        class="glyphicon glyphicon-share-alt"
+                                        aria-hidden="true"></span></button>
+                                <button class="btn btn-sm btn-info query-search">查询 <span
+                                        class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="is-show-btn">︿</div>
+                </div>
+                <div class="kh-work-footer">
+                    <table id="reportTable" data-classes="table table-no-bordered" data-url="data2.json"
+                           data-pagination="true">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<iframe id="detailIframe" marginWidth=0 marginHeight=0 frameBorder=0 width="100%"
+        scrolling=no src="" style="display: none;"></iframe>
+</body>
+</html>
+<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js?_=${version}"></script>
+<script src="${base}/new/public/bootstrap-3.3.7-dist/js/bootstrap.min.js?_=${version}"></script>
+<script src="${base}/new/public/jquery-easyui-1.5.3/jquery.easyui.min.js?_=${version}"></script>
+<script src="${base}/new/public/bootstrap-table/js/bootstrap-table.js?_=${version}"></script>
+<script src="${base}/new/public/bootstrap-table/js/bootstrap-table-zh-CN.min.js?_=${version}"></script>
+<script src="${base}/new/js/index.js?_=${version}"></script>
+<script src="${base}/new/plugins/sweetalert/sweetalert.min.js?_=${version}"></script>
+<script src="${base}/new/plugins/laydate/laydate.js?_=${version}"></script>
+<script type="text/javascript">
+    //日期范围限制
+    var start = {
+        elem: '#managementStart',
+        format: 'YYYY/MM/DD',
+        max: '2099-06-16', //最大日期
+        istoday: false,
+        choose: function (datas) {
+            end.min = datas; //开始日选好后，重置结束日的最小日期
+            end.start = datas //将结束日的初始值设定为开始日
+        }
+    };
+    var end = {
+        elem: '#managementEnd',
+        format: 'YYYY/MM/DD',
+        min: laydate.now(),
+        max: '2099-06-16',
+        istoday: false,
+        choose: function (datas) {
+            start.max = datas; //结束日选好后，重置开始日的最大日期
+        }
+    };
+    laydate(start);
+    laydate(end);
+    var tabQueryStatus = 1;
+    $(function () {
+        //收起查询重置 面板
+        myWorkLayout();
+        $('#dt3').datetimebox({
+            value: '',
+            required: true,
+            showSeconds: false,
+            setValue: ''
+        });
+        $('#dt4').datetimebox({
+            value: '',
+            required: true,
+            showSeconds: false,
+            setValue: ''
+        });
+        var table = new queryTable();
+        table.Init();
+
+        //查询按钮点击监控
+        $(".query-search").click(function () {
+            $('#reportTable').bootstrapTable("refresh", {});
+        });
+        //重置按钮监控
+        $(".query-search-reset").click(function () {
+            $(" #managementStart ").val("");  //起始时间
+            $(" #managementEnd ").val("");  //结束时间
+            $("#keywordSearch").val("");   //咨询内容
+            $("#selEvaluateResult").val(""); //评价满意度
+            $("#selInQueryBase").val("");
+        });
+    });
+
+	##表格类
+    var queryTable = function () {
+        var table = new Object();
+        table.Init = function () {
+            $('#reportTable').bootstrapTable({
+                url: '${base}/$!{generatorContext.module}/$!{table.urlName}/queryPaged',
+                method: 'get',
+                cache: false,
+                striped: false,
+                pagination: true,
+                pageNumber: 1,
+                pageSize: 10,
+                pageList: [10, 20, 30, 40],
+                showColumns: false,
+                showRefresh: false,
+                showExport: false,
+                queryParams: table.queryParams,
+                responseHandler: table.responseHandler,
+                search: false,
+                clickToSelect: false,
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                columns:[
+                    {field: "id", title: "ID", class: 'w-50', align: "center", valign: "middle"}
+                    #foreach ($column in $table.columns)
+                        ,{field:'$!{column.fieldName}',title:'$!{column.columnCommnet}',align: "center", valign: "middle"}
+                    #end
+                    ,{
+                        field: 'id',
+                        title: '操作',
+                        minWidth: '70px',
+                        align: 'center',
+                        class: 'edit-td handle w-150',
+                        formatter: function (value, row, index) {
+                            var e = '';
+                            e += '<button type="button" class="btn btn-primary btn-xs" onclick="detail(' + value + ')">详情</button> ';
+                            e += '<button type="button" class="btn btn-primary btn-xs" onclick="openEditModel(' + value + ')">编辑</button> ';
+                            e += '<button type="button" class="btn btn-primary btn-xs" onclick="deleteModel(' + value + ')">删除</button> ';
+                            return e;
+                        }
+                    },
+                ],
+            });
+        };
+	##上传查询参数
+        table.queryParams = function (params) {
+            var page = (params.offset+9) / 10;
+            startTime = $(" #managementStart ").val();  //起始时间
+            endTime = $(" #managementEnd ").val();  //结束时间
+            query = $("#keywordSearch").val();   //咨询内容
+            evaluateResult = $("#selEvaluateResult option:selected").val(); //评价满意度
+            inQueryBase = $("#selInQueryBase option:selected").val();
+            var temp = {
+                rows: params.limit,   //页面大小
+                page: page,  //页码
+                queryStatus: tabQueryStatus,
+                satrtTime: startTime,
+                endTime: endTime,
+                query: query,
+                evaluateResult: evaluateResult,
+                inQueryBase: inQueryBase
+            };
+            return temp;
+        };
+	##返回数据
+        table.responseHandler = function (res) {
+            if(res.status==0) {
+                return res.retinfo;
+            }
+            return null;
+        }
+        return table;
+    };
+
+    function refreshTable(){
+        $('#reportTable').bootstrapTable("refresh", {});
+    }
+
+    function openAddModel(){
+        $("#detailIframe").show();
+        $("#conMain").hide();
+        $("#detailIframe").attr("src", "${base}/$!{generatorContext.module}/$!{table.urlName}/add");
+    }
+    function openEditModel(id){
+        $("#detailIframe").show();
+        $("#conMain").hide();
+        $("#detailIframe").attr("src", "${base}/$!{generatorContext.module}/$!{table.urlName}/add?id="+id);
+    }
+
+    /**详情显示**/
+    function detail(id) {
+        $("#detailIframe").show();
+        $("#conMain").hide();
+        var url = '${base}/$!{generatorContext.module}/$!{table.urlName}/detail?id=' + id;
+        $("#detailIframe").attr("src", url);
+    }
+
+    /*设置iframe高度*/
+    $('#reportTable').on("load-success.bs.table", function () {
+        var height = $("body").height();
+        var Hs = $("body",parent.document).height()-90;
+        $('.grid-$!{generatorContext.module}', parent.document).height(Hs);
+    });
+
+    /**删除*/
+    var isSubmit = 0;
+    function deleteModel(id) {
+        if (isSubmit == 1) {
+            return;
+        }
+        isSubmit = 1
+        $.ajax({
+            type: "POST",
+            url: '${base}/$!{generatorContext.module}/$!{table.urlName}/delete?&id=' + id,
+            success: function (result) {
+                if(result.status==0) {
+                    swal("操作成功!", "已删除", "success").then(function () {
+                        $('#reportTable').bootstrapTable("refresh", {});
+                    });
+                }else{
+                    swal("操作失败!", result.message, "error");
+                }
+                isSubmit = 0
+            }, error: function (result) {
+                swal("操作失败!", "失败", "error");
+                isSubmit = 0
+            }
+        });
+    };
+    /**推荐 end**/
+</script>

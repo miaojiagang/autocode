@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<table>
+    <columns>
+##属性-列对应
+##Velocity 代码段#(开始)###
+#foreach ($column in $table.columns)
+    #if($column.dataType=='bigint'|| $column.dataType=='tinyint')
+        <column columnName="$!{column.columnName}" inputType="select"/>
+    #elseif($column.dataType=='varchar'&& $column.columnLength>=260 ||$column.dataType=='longtext')
+        <column columnName="$!{column.columnName}" inputType="textarea"/>
+    #else
+        <column columnName="$!{column.columnName}" inputType="text"/>
+    #end
+#end
+    </columns>
+</table>

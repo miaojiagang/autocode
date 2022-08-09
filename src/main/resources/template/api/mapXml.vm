@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="$!{generatorContext.domain}">
+##属性-列对应
+    <resultMap id="get$!{className}Result" type="$!{generatorContext.domain}">
+        <id property="id" column="id"/>
+    ##Velocity 代码段#(开始)###
+    #foreach ($column in $table.columns)
+        <!-- $!{column.columnCommnet}-->
+        <result property="$!{column.fieldName}" column="$!{column.columnName}"/>
+    #end
+
+        <!--创建人-->
+        <result property="creator" column="creator"/>
+        <!--创时间-->
+        <result property="createDate" column="create_date"/>
+        <!--更新人-->
+        <result property="updator" column="updator"/>
+        <!--更新时间-->
+        <result property="updateDate" column="update_date"/>
+        <!--软删除：0表示删除，1表示存在-->
+        <result property="valid" column="valid"/>
+    ##Velocity 代码段#(结束)###
+    </resultMap>
+
+
+    <!--根据id查询记录，返回map-->
+    <select id="$!{className}_getMap" resultType="map">
+        SELECT
+           id
+        FROM
+        $!{tableName}
+        where
+        id = #{id}
+    </select>
+
+    <!--根据条件查询记录，返回map-->
+    <select id="$!{className}_listMap" resultType="map" parameterType="map">
+        SELECT
+           id
+        FROM
+        $!{tableName}
+        where
+           valid = 1
+    </select>
+
+</mapper>

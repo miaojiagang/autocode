@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="$!{generatorContext.dao}Dao">
+
+    <!--属性-列对应-->
+    <sql id="$!{className}Columns">
+
+    #foreach ($column in $table.columns)
+        $!{fieldName}.$!{column.columnName} AS "$!{column.fieldName}",
+    #end
+        $!{fieldName}.owid AS "owid"
+    </sql>
+
+
+    <sql id="$!{className}Joins">
+    </sql>
+
+    <!--获取单条信息详情-->
+    <select id="get" resultType="$!{generatorContext.domain}">
+        SELECT
+        <include refid="$!{className}Columns"/>
+        FROM $!{tableName} $!{fieldName}
+        <include refid="$!{className}Joins"/>
+        WHERE $!{fieldName}.owid = #{owid}
+    </select>
+
+    <!--查询列表-->
+    <select id="findList" resultType="$!{generatorContext.domain}">
+        SELECT
+        <include refid="$!{className}Columns"/>
+        FROM $!{tableName} $!{fieldName}
+        <include refid="$!{className}Joins"/>
+        <where>
+
+        </where>
+        <choose>
+            <when test="orderBy != null and orderBy != ''">
+                ORDER BY ${orderBy}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <!--查询所有-->
+    <select id="findAllList" resultType="$!{generatorContext.domain}">
+        SELECT
+        <include refid="$!{className}Columns"/>
+        FROM $!{tableName} $!{fieldName}
+        <include refid="$!{className}Joins"/>
+        <where>
+
+        </where>
+        <choose>
+            <when test="orderBy != null and orderBy != ''">
+                ORDER BY ${orderBy}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <!--新增-->
+    <insert id="insert">
+        INSERT INTO $!{tableName}(
+    #foreach ($column in $table.columns)
+        $!{column.columnName},
+    #end
+        owid
+        ) VALUES (
+    #foreach ($column in $table.columns)
+         #{$!{column.fieldName}},
+    #end
+        #{owid}
+        )
+    </insert>
+
+    <!--更新数据-->
+    <update id="update">
+        UPDATE $!{tableName} SET
+        #foreach ($column in $table.columns)
+             $!{column.columnName} = #{$!{column.fieldName}},
+        #end
+        owid = #{owid}
+        WHERE owid = #{owid}
+    </update>
+
+    <!--删除单条数据-->
+    <delete id="delete">
+        DELETE FROM $!{tableName}
+        WHERE owid = #{owid}
+    </delete>
+
+
+    <!--多条件查询-->
+    <select id="findListByMap" resultType="$!{generatorContext.domain}">
+        SELECT
+        <include refid="$!{className}Columns"/>
+        FROM
+        $!{tableName} AS $!{fieldName}
+        <where>
+            <if test="owid!=null and owid!=''"> and a.owid = #{owid}</if>
+            #foreach ($column in $table.columns)
+                <if test="$!{column.fieldName} != null and $!{column.fieldName} !='' ">AND $!{fieldName}.$!{column.columnName} = #{$!{column.fieldName}}</if>
+            #end
+        </where>
+        <choose>
+            <when test="orderBy != null and orderBy != ''">
+                ORDER BY ${orderBy}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <!--多条件查询单条-->
+    <select id="findOneByMap" resultType="$!{generatorContext.domain}">
+        SELECT
+        <include refid="$!{className}Columns"/>
+        FROM
+        $!{tableName} AS $!{fieldName}
+        <where>
+            <if test="owid!=null and owid!=''"> and a.owid = #{owid}</if>
+            #foreach ($column in $table.columns)
+                <if test="$!{column.fieldName} != null and $!{column.fieldName} !='' ">AND $!{fieldName}.$!{column.columnName} = #{$!{column.fieldName}}</if>
+            #end
+        </where>
+        <choose>
+            <when test="orderBy != null and orderBy != ''">
+                ORDER BY ${orderBy}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+        LIMIT 1
+    </select>
+
+    <!--删除ByMap-->
+    <delete id="deleteByMap">
+        DELETE FROM $!{tableName} $!{fieldName}
+        <where>
+            <if test="owid!=null and owid!=''"> and $!{fieldName}.owid = #{owid}</if>
+            #foreach ($column in $table.columns)
+                <if test="$!{column.fieldName} != null and $!{column.fieldName} !='' ">AND $!{fieldName}.$!{column.columnName} = #{$!{column.fieldName}}</if>
+            #end
+        </where>
+        <choose>
+            <when test="orderBy != null and orderBy != ''">
+                ORDER BY ${orderBy}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </delete>
+</mapper>

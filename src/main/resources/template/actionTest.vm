@@ -1,0 +1,20 @@
+##包定义
+package $!{targetPackage};
+
+import org.junit.Test;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import com.zjhcsoft.bi.fast.test.MagicActionStandaloneSetupTestCase;
+
+/**
+ * @description:$!{table.name} action单元测试用例
+ * @author: $!{javaDoc.author}
+ * @date: $!{javaDoc.createDate}
+ * @history:
+ */
+
+public class $!{className}ActionTest extends
+		MagicActionStandaloneSetupTestCase<$!{className}Action> {
+	
+
+}

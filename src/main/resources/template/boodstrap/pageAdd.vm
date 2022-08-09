@@ -1,0 +1,121 @@
+#set($v1 = "$!{")
+#set($v2 = "}")
+#include('version.vm')
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>$!{table.name}新增界面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    #parse("commons/commonCss.vm")
+</head>
+<body>
+
+<h4 class="container-fluid">
+    <h4 class="title-style-icon">基础信息</h4>
+    <form class="form-horizontal" id="beanForm">
+        <input type="text" id="uniqueId" name="uniqueId" hidden="hidden">
+        <input type="text" id="gridId" name="gridId" hidden="hidden">
+
+        #foreach ($column in $table.columns)
+            <div class="form-group">
+                <label class="col-md-2 control-label"><strong>*</strong>营业状态：</label>
+                <div class="col-md-3">                    
+                    #if($column.inputType=='text')
+                    ##<!--输入框-->
+                        <input class="form-control" type="text" name="$!{column.fieldName}" id="$!{column.fieldName}" value="" required maxlength="$column.columnLength">
+                    #elseif($column.inputType=='select')
+                    ## <!--选择框-->
+                        <select id="$!{column.fieldName}" name="$!{column.fieldName}" class="form-control" required>
+                            #dicSelect("$!{column.fieldName}")
+                        </select>
+                    ## <!--文本框-->
+                    #elseif($column.inputType=='textarea')
+                        <textarea class="form-control big-txt" type="text" id="$!{column.fieldName}" name="$!{column.fieldName}" ></textarea>
+                    #else
+                        <input class="form-control" type="text" name="$!{column.fieldName}" id="$!{column.fieldName}" value="" maxlength="$column.columnLength">
+                    #end
+                </div>
+            </div>
+        #end
+    </form>
+    </div>
+</h4>
+    #parse("commons/commonJs.vm")
+<script type="text/javascript" src="$!{base}/new/js/baseInfoCommon.js?_=${version}"></script>
+<script type="text/javascript">
+    //唯一标识
+    var uniqueId = "$!{uniqueId}";
+
+    $(function () {
+        if (null != uniqueId && uniqueId.length > 0) {
+            $.ajax({
+                type: "post",
+                url:'${base}/$!{generatorContext.module}/$!{table.urlName}/getInfo?id='+uniqueId,
+                success: function (result) {
+                    if (result.status == 0) {
+                        var data = result.retinfo;
+                        #foreach ($column in $table.columns)
+                            $("#$!{column.fieldName}").val(model.$!{column.fieldName});
+                        #end
+                        setIframeHeight();
+                    } else {
+                        window.parent.parent.errorWindow("", result.message);
+                    }
+                }, error: function (result) {
+                    window.parent.parent.errorWindow("", result.message);
+                }
+            })
+        }
+        setIframeHeight();
+    });
+
+    //保存
+    function save() {
+        if (!validForm("beanForm")) {
+            setIframeHeight();
+            return;
+        }
+        if(!ckeckInput){
+            isSubmit = 0
+            return;
+        }
+
+        //通过验证开始保存参数
+        var data = formToJson("beanForm");
+        //console.log(data);
+        window.parent.parent.showOverLay();
+        $.ajax({
+            url:'${base}/$!{generatorContext.module}/$!{table.urlName}/save',
+            data: data,
+            type: "post",
+            dataType: "json",
+            success: function (result) {
+                if (result.status == 0) {
+                    window.parent.parent.hideOverLay();
+                    window.parent.parent.successWindow();
+                    window.parent.detailReturn();
+                } else {
+                    window.parent.parent.hideOverLay();
+                    window.parent.parent.errorWindow("", result.message);
+                }
+            }, error: function (result) {
+                window.parent.parent.hideOverLay();
+                window.parent.parent.errorWindow("", result.message);
+            }
+        });
+    }
+
+    function ckeckInput(){
+        #foreach ($column in $table.columns)
+            if($("#$!{column.fieldName}").val()<=0) {
+                window.parent.parent.errorWindow("请输入$!{column.columnCommnet}", "", "error");
+                return false;
+            }
+        #end
+        return true;
+    }
+</script>
+</body>
+</html>

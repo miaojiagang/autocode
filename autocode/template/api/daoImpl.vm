@@ -1,0 +1,38 @@
+#set($searchColCount = 1)
+##包定义
+package $!{targetPackage};
+
+import com.zjhcsoft.bi.fast.orm.service.support.paging.PageInfo;
+import org.springframework.stereotype.Component;
+import com.zjhcsoft.travel.common.dao.CoreDaoImpl;
+import java.util.Map;
+##导入dao、实体
+import $!{generatorContext.domain};
+
+/**
+ * @description:$!{table.name}daoIml
+ * @author $!{javaDoc.author}
+ * @date: $!{javaDoc.createDate}
+ * @history:
+ */
+@Component
+public class $!{className}DaoImpl extends CoreDaoImpl<$!{className}>{
+
+	/**
+	 * 根据条件查询分页
+	 * @param param
+	 * @return
+	 */
+	public PageInfo<Map> queryPagedMap(Map param) {
+        return super.queryPaged(Map.class,"$!{className}_listMap",param);
+	}
+
+    /**
+    * 根据id查询单条记录
+    * @param param
+    * @return
+    */
+    public Map getMap(Map param) {
+    	return (Map)super.queryUniquely(Map.class,"$!{className}_getMap",param);
+	}
+}

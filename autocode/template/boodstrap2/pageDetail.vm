@@ -1,0 +1,89 @@
+#set($v1 = "$!{")
+#set($v2 = "}")
+#include('/template/boodstrap2/version.vm')
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>$!{table.name}/详细</title>
+    <link rel="stylesheet" type="text/css" href="${base}/css/temp/model.css?_=${version}">
+    <link rel="stylesheet" type="text/css" href="${base}/css/temp/pcreset.css?_=${version}">
+    <link href="${base}/css/ml.css?_=${version}" rel="stylesheet">
+    <link href="${base}/bootstrap/css/bootstrap.min.css?_=${version}" rel="stylesheet">
+    <link href="${base}/bootstrap/css/bootstrap-table.min.css?_=${version}" rel="stylesheet">
+    <link href="${base}/bootstrap/css/base.css?_=${version}" rel="stylesheet">
+    <link href="${base}/bootstrap/css/table.css?_=${version}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="${base}/bootstrap/css/sweetalert2.min.css?_=${version}">
+    <link href="${base}/uploadify/uploadify.css?_=${version}" rel="stylesheet">
+    <link href="${base}/plugin/viewJs/viewer.min.css?_=${version}" rel="stylesheet">
+    <style>
+        .ulimg-lists img{cursor:pointer}
+        .none { display: none }
+        .col-md-2 { width: 10%; }
+        .mod-pic-con{  display: inline-block; margin-left: 15px; }
+    </style>
+
+</head>
+<body>
+<div class="event-model" style="width: 100%">
+    <div class="wrap" style="width: 100%">
+        <div class="item-tit">
+            <p class="name">!{table.name}详细</p>
+            <a href="javascript:void(0)" onclick="returnList();" class="watch-more">返回</a>
+        </div>
+        <div class="con-inner">
+#foreach ($column in $table.columns)
+            <div class="item">
+                <div class="list">
+                    <span class="label">$!{column.columnCommnet}：</span>
+                    <i class="status" id="$!{column.fieldName}"></i>
+                </div>
+            </div>
+#end
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<link href="${base}/bootstrap/css/sweetalert2.min.css?_=${version}" rel="stylesheet">
+<script src="${base}/js/jquery.1.11.1.min.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/plugins/laydate/laydate.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/bootstrap.min.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/bootstrap-table.min.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/bootstrap-table-zh-CN.min.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/plugins/tableExport.js?_=${version}"></script>
+<script src="${base}/bootstrap/js/plugins/jquery.base64.js?_=${version}"></script>
+<script src="${base}/js/ajax/core2.4.1.js?_=${version}"></script>
+<script type="text/javascript">
+    $(function () {
+        var height = $("body").height() + 50;
+        $("#iframe", window.parent.parent.document).height(height);
+        $("#detailIframe", window.parent.document).height(height);
+
+        initModel();
+    });
+
+    function initModel(){
+        $.ajax({
+            type: "POST",
+            url:'${base}/$!{generatorContext.module}/$!{table.urlName}/getInfo?id='+${id},
+            success:function (result) {
+                if(result.status==0) {
+                    var model = result.retinfo;
+                    #foreach ($column in $table.columns)
+                        $("#$!{column.fieldName}").html(model.$!{column.fieldName});
+                    #end
+                }
+            }
+        });
+    }
+
+	##返回
+    function returnList() {
+        $("#detailIframe", window.parent.document).hide();
+        $("#conMain", window.parent.document).show();
+        window.parent.setPageSize();
+    }
+</script>

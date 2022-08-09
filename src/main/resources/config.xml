@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- config :生成器配置信息
+ targetProject:生成文件路径 targetPackage：项目包-->
+<config targetProject="/Users/miaojiagang/Downloads/"
+        targetPackage="com.zghzbckj.manage"
+        toFilePath="/src/main/java/">
+
+    <javaDoc author="MJG" createDate="2022/07/18"/>
+
+    <!-- jdbcConnection 数据库连接信息
+        driverClass：数据库驱动程序
+        connectionURL：数据库连接串
+        userId:数据库用户名
+        password：用户密码
+        infSql:读取表信息的sql,mysql:"SELECT c.COLUMN_COMMENT ,c.COLUMN_NAME , c.COLUMN_TYPE , c.COLUMN_KEY ,c.DATA_TYPE
+        , c.IS_NULLABLE ,c.COLUMN_DEFAULT  FROM information_schema.COLUMNS c WHERE c.TABLE_NAME = '${table_name}' AND c.TABLE_SCHEMA = '${TABLE_SCHEMA}'"
+     -->
+    <!-- mysql
+
+                    connectionURL="jdbc:mysql://localhost:53305/kh2_grid?useUnicode=true&amp;characterset=utf-8"
+                    -->
+    <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                    connectionURL="jdbc:mysql://183.159.233.174:3360/villagepro?useUnicode=true&amp;characterset=utf-8"
+                    userId="root"
+                    password="root11"
+                    infSql = "SELECT   c.COLUMN_COMMENT ,c.COLUMN_NAME , c.COLUMN_TYPE , c.COLUMN_KEY
+                    ,c.DATA_TYPE , c.IS_NULLABLE ,c.COLUMN_DEFAULT   FROM information_schema.COLUMNS c
+                    WHERE c.TABLE_NAME = '${TABLE_NAME}' AND c.TABLE_SCHEMA = '${TABLE_SCHEMA}'"
+            >
+    </jdbcConnection>
+    <!-- oracle -->
+    <!--
+    <jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver"
+        connectionURL="jdbc:oracle:thin:@10.80.11.250:1521:jpsc"
+        userId="jpsc"
+        password="jpsc"
+        infSql = "select f.comments as COLUMN_COMMENT,a.column_name as COLUMN_NAME,a.data_type as COLUMN_TYPE,e.key as COLUMN_KEY
+        ,a.data_type as DATA_TYPE, a.nullable as IS_NULLABLE,a.data_default as COLUMN_DEFAULT from user_tab_columns a
+        , user_col_comments f,(select b.table_name, b.index_name,b.uniqueness, c.column_name,decode(d.constraint_name,NULL,'N','Y')
+         key from user_indexes b, user_ind_columns c,( select constraint_name from user_constraints where constraint_type='P' )
+          d where b.index_name=c.index_name and b.index_name=d.constraint_name(+) ) e
+           where a.table_name='${TABLE_NAME}'
+           and a.table_name=e.table_name(+) and a.column_name=e.column_name(+)
+            and a.table_name=f.table_name and a.column_name=f.column_name order by a.column_id"
+        >
+    </jdbcConnection>
+     -->
+    <!--generators 要生成的代码类型 -->
+    <generators>
+        <!--generator，要生成的代码类型
+            targetProject:代码存放位置，
+            targetPackage:代码包路径，
+            template：使用渲染模板，
+            type:代码类型，xml:sql Map文件，domain：实体对象，dao：数据访问对象，service：服务对象，action，page:vm模板
+            fileType:生成文件类型
+             -->
+        <!--template模板说明：
+            /template目录下的模板文件为通用的CURD操作的模板
+            /template/api目录下的模板文件为查询类的模板，主要适用于查询类为主且返回的json参数需要灵活定义的接口，
+                          如：APP服务端、微信公众号服务端接口等，该目录下目前只包含xml、daoImpl、serviceImpl、action4个模板文件
+            /template/bootstrape目录下为bootstrape页面模板，生成add、detail、index页面，添加页面使用跳转模式
+            /template/bootstrape2目录下为bootstrape页面模板，生成add、detail、index页面，添加页面使用弹窗模式
+            /template/easyui目录下为easyui页面模板，生成add、detail、index页面
+        -->
+
+        <!-- ================通用CURD================ -->
+        <!-- domain 文件生成 -->
+        <generator type="domain"/>
+
+        <!-- sql map 文件生成 -->
+        <generator type="xml"/>
+
+        <!-- dao 文件生成 -->
+        <generator type="dao" />
+
+        <!-- daoImpl 文件生成 -->
+        <!--<generator type="daoImpl"/>-->
+
+        <!-- service 文件生成 -->
+        <generator type="service" />
+
+        <!-- serviceImpl 文件生成 -->
+        <!--<generator type="serviceImpl"/>-->
+
+        <!-- action 文件生成 -->
+        <generator type="action"/>
+
+        <!--&lt;!&ndash; 页面  文件生成 &ndash;&gt; -->
+        <!--	easyui:easyui框架 (生成add、edit、index页面)
+            boodstrap:boodstrap框架，添加页面不弹框 (生成add、detail、index页面)
+            boodstrap2:boodstrap框架，添加页面弹框 (生成add、detail、index页面)
+            1.0.0 为，将数据持久层在sevice层中
+        -->
+        <!--<generator type="page" name="index" fileType = "vm" template="/template/boodstrap/pageIndex.vm"/>-->
+        <!--<generator type="page" name="add" fileType = "vm" template="/template/boodstrap/pageAdd.vm"/>-->
+        <!--<generator type="page" name="detail" fileType = "vm" template="/template/boodstrap/pageDetail.vm"/>-->
+
+
+        <!-- ================只查询================ -->
+        <!-- domain 文件生成 -->
+        <!--<generator type="domain"/>-->
+
+        <!-- sql map 文件生成  查询类-->
+        <!--<generator type="xml" template="/template/api/mapXml.vm"/> -->
+
+        <!-- daoImpl 文件生成 查询类-->
+        <!--<generator type="daoImpl" template="/template/api/daoImpl.vm"/>-->
+
+        <!-- serviceImpl 文件生成 -->
+        <!--<generator type="serviceImpl" template="/template/api/serviceImpl.vm"/>-->
+
+        <!-- action 文件生成 -->
+        <!--<generator type="action" template="/template/api/action.vm"/>-->
+    </generators>
+
+    <!--tables 要生成的表信息 -->
+    <tables>
+        <!--生成代码的表信息
+            schema：数据库schema
+            tableNmae：数据库表名
+            className:对应java实体名，如果按照数据库设计规范设计可不用配置，按照tableName安装驼峰规则转换得到
+            name:对应的实体名称，用于生成页面时展示使用
+         -->
+
+
+        <table schema="villagepro" moduleName="entity" tableName="bckj_biz_cameraman" name="摄影师"/>
+
+    </tables>
+</config>

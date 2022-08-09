@@ -1,0 +1,24 @@
+#set($searchColCount = 1)
+##包定义
+package $!{targetPackage};
+
+import com.zjhcsoft.bi.fast.orm.domain.BaseEntity;
+import com.zjhcsoft.travel.common.service.CoreService;
+import $!{generatorContext.daoPackage}.$!{className}Dao;
+##导入dao、实体
+import $!{generatorContext.domain};
+
+/**
+ * @description:$!{table.name}Service
+ * @author $!{javaDoc.author}
+ * @date: $!{javaDoc.createDate}
+ * @history:
+ */
+public interface $!{className}Service extends CoreService<$!{className},$!{className}Dao>{
+
+      /**
+      * 保存
+      * @param bean
+      */
+      public void save($!{className} bean);
+}
